@@ -17,12 +17,19 @@
     <string name="how_to_download">How to download</string>
     <string name="open_youtube">Open YouTube</string>
     <string name="content_desc_back">Back</string>
+    <string name="home_hero_title">Save videos and audio fast</string>
+    <string name="home_hero_body">Paste a link or share from another app. Choose quality, save to your device, then play, share, or delete from Library.</string>
+    <string name="home_link_label">Video or audio link</string>
+    <string name="home_download_note">No account. No ads. Your downloads stay on this device.</string>
     <string name="tutorial_step_1">Open YouTube (or another app) and tap Share on the video you want.</string>
     <string name="tutorial_step_2">If you do not see DownMe, tap More in the share sheet.</string>
     <string name="tutorial_step_3">Choose DownMe. The download starts in the background; check progress in Library.</string>
     <string name="hint_search_url">Search or paste link</string>
     <string name="start_download">Download</string>
     <string name="quality_label">Quality</string>
+    <string name="quality_sheet_title">Download video as</string>
+    <string name="quality_sheet_music">Music</string>
+    <string name="quality_sheet_video">Video</string>
     <string name="paste_valid_url">Paste a valid https URL</string>
     <string name="share">Share</string>
     <string name="play">Play</string>
@@ -30,7 +37,25 @@
     <string name="library_file_missing">File not found. It may have been removed from storage.</string>
     <string name="library_action_unavailable">This file is not available on device storage.</string>
     <string name="retry">Retry</string>
-    <string name="storage_path">Videos appear in your Gallery and under Movies/DownMe (audio under Music/DownMe). Older Android may need storage permission once for the same folders.</string>
+    <string name="storage_path">Change where files are saved in Settings → Download path.</string>
+    <string name="theme_title">Theme</string>
+    <string name="settings_intro_title">Ready for everyday downloads</string>
+    <string name="settings_intro_body">Control quality prompts, save location, appearance, and support from one place.</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_yellow">Yellow</string>
+    <string name="download_path_title">Download path</string>
+    <string name="download_path_movies_downme">Movies/DownMe</string>
+    <string name="download_path_movies">Movies folder</string>
+    <string name="download_path_downloads">Download folder</string>
+    <string name="download_path_app_only">App only</string>
+    <string name="download_path_hint_movies_downme">Videos: Gallery and Movies/DownMe. Audio: Music/DownMe.</string>
+    <string name="download_path_hint_movies">Videos: Gallery and Movies/. Audio: Music/.</string>
+    <string name="download_path_hint_downloads">Videos and audio: Download/DownMe (Files app and Gallery).</string>
+    <string name="download_path_hint_app_only">Saved inside the app. Visible in Library; not copied to Gallery.</string>
+    <string name="download_path_note">Applies to new downloads. Existing files stay where they were saved.</string>
+    <string name="quality_prompt_title">Ask quality before download</string>
+    <string name="quality_prompt_summary">Show a quality picker every time you press Download. Turn off to use the default quality automatically.</string>
     <string name="default_quality_title">Default quality</string>
     <string name="settings_help_section_title">How to download</string>
     <string name="settings_visual_guide_summary">Share a video from YouTube (or another app), pick DownMe from the share sheet, then track the download in Library.</string>
@@ -51,16 +76,19 @@
 
     <string name="about_section_header">About DownMe</string>
     <string name="about_app_title">About this app</string>
-    <string name="about_app_body">DownMe is a free video downloader with no ads. Paste or share a link to save videos in the quality you choose. We built it for a simple, uninterrupted download experience.</string>
+    <string name="about_app_body">DownMe is a free video downloader with no ads, built by Tefarab AI. Paste or share a link to save videos in the quality you choose.</string>
     <string name="about_disclaimer_title">Disclaimer</string>
     <string name="about_disclaimer_body">This app is for personal use only. Respect copyright and the terms of the sites you download from. DownMe does not guarantee availability, speed, or success for every link.</string>
     <string name="about_contact_title">Support</string>
-    <string name="about_contact_body">Questions or feedback? Use the buttons below when support links are configured.</string>
+    <string name="legal_support_title">Legal &amp; support</string>
+    <string name="about_contact_body">DownMe is built by Tefarab AI. View our work, read the privacy policy, or email support if you need help.</string>
     <string name="about_contact_body_pending">Support links are not configured yet. Check back after the next app update.</string>
-    <string name="cta_visit_website">Visit website</string>
-    <string name="cta_contact_support">Contact support</string>
+    <string name="cta_visit_website">Our work</string>
+    <string name="cta_privacy_policy">Privacy policy</string>
+    <string name="cta_contact_support">Email support</string>
 
-    <!-- Leave empty until you provide URLs; buttons stay hidden when blank. -->
-    <string name="support_website_url"></string>
+    <string name="support_website_url">https://www.tefarab.xyz/#work</string>
+    <string name="privacy_policy_url">https://www.tefarab.xyz/privacy-downme</string>
+    <string name="support_email">muzahidur2024@gmail.com</string>
     <string name="support_chat_url"></string>
 </resources>

@@ -13,8 +13,13 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.downme.app.DownMeApplication
+import com.downme.app.data.AppThemeMode
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -42,11 +47,30 @@ sealed class TabDestination(val route: String, val labelRes: Int, val icon: Imag
 private val tabs = listOf(TabDestination.Home, TabDestination.Library, TabDestination.Settings)
 
 @Composable
-fun DownMeApp() {
-    DownMeTheme {
+fun DownMeApp(
+    pendingSharedDownloadUrl: String? = null,
+    onPendingSharedDownloadUrlConsumed: () -> Unit = {},
+) {
+    val context = LocalContext.current
+    val app = context.applicationContext as DownMeApplication
+    val themeMode by app.userPreferences.themeMode.collectAsStateWithLifecycle(
+        initialValue = AppThemeMode.Dark,
+    )
+    DownMeTheme(themeMode = themeMode) {
         val navController = rememberNavController()
         val backStack by navController.currentBackStackEntryAsState()
         val current = backStack?.destination
+        LaunchedEffect(pendingSharedDownloadUrl) {
+            if (!pendingSharedDownloadUrl.isNullOrBlank()) {
+                navController.navigate(TabDestination.Home.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        }
         val showBottomBar =
             current?.route != "tutorial" && current?.route?.startsWith("player/") != true
         Scaffold(
@@ -92,6 +116,8 @@ fun DownMeApp() {
                 composable(TabDestination.Home.route) {
                     HomeScreen(
                         onOpenTutorial = { navController.navigate("tutorial") },
+                        pendingSharedDownloadUrl = pendingSharedDownloadUrl,
+                        onPendingSharedDownloadUrlConsumed = onPendingSharedDownloadUrlConsumed,
                     )
                 }
                 composable(TabDestination.Library.route) {

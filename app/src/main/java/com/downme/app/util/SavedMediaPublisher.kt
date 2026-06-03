@@ -10,47 +10,55 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.downme.app.BuildConfig
+import com.downme.app.data.DownloadSaveLocation
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
 /**
  * Copies downloads from app-private storage into locations indexed by the system MediaStore so
- * Gallery, Photos, and Files → Movies (or Music) can show them.
+ * Gallery, Photos, and Files can show them — or keeps them in app storage when requested.
  */
 object SavedMediaPublisher {
 
     private const val TAG = "SavedMediaPublisher"
+    private const val APP_STAGING_FOLDER = "DownMe"
 
-    fun publishDownload(context: Context, source: File, title: String, jobId: String): String? {
+    fun publishDownload(
+        context: Context,
+        source: File,
+        title: String,
+        jobId: String,
+        location: DownloadSaveLocation,
+    ): String? {
         if (!source.isFile || source.length() <= 0L) return null
+        if (!location.publishToGallery) {
+            return source.absolutePath
+        }
         val base = sanitizeTitle(title).ifBlank { "DownMe" }
         val ext = source.extension.lowercase().let { if (it.isNotEmpty()) ".$it" else "" }
         val displayName = "${base}_${jobId.takeLast(8)}$ext"
         val mime = mimeForExtension(source.extension)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            insertViaMediaStore(context.applicationContext, source, displayName, mime)
+            insertViaMediaStore(context.applicationContext, source, displayName, mime, location)
         } else {
-            copyToPublicMoviesLegacy(context.applicationContext, source, displayName, mime)
+            copyToPublicLegacy(context.applicationContext, source, displayName, mime, location)
         }
     }
 
-    /** Visible in system gallery and under public Movies/DownMe or Music/DownMe. */
+    fun stagingDir(context: Context): File =
+        File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES), APP_STAGING_FOLDER).apply { mkdirs() }
+
     private fun insertViaMediaStore(
         context: Context,
         source: File,
         displayName: String,
         mime: String,
+        location: DownloadSaveLocation,
     ): String? {
         val resolver = context.contentResolver
         val isAudio = mime.startsWith("audio/")
-        val relativePath =
-            if (isAudio) {
-                Environment.DIRECTORY_MUSIC + "/DownMe"
-            } else {
-                Environment.DIRECTORY_MOVIES + "/DownMe"
-            }
-        // EXTERNAL_CONTENT_URI is more widely picked up by gallery OEM code than volume Uris.
+        val relativePath = location.videoRelativePath(isAudio)
         val collection =
             if (isAudio) {
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -97,32 +105,34 @@ object SavedMediaPublisher {
             return null
         }
         source.delete()
-        triggerGalleryScan(context, displayName, mime, isAudio)
+        triggerGalleryScan(context, displayName, mime, isAudio, location)
         return uri.toString()
     }
 
-    /**
-     * Many OEM galleries still index via [MediaScannerConnection]. After MediaStore finishes, the
-     * file is typically on disk under public Movies/DownMe or Music/DownMe.
-     */
+    private fun publicRootFor(location: DownloadSaveLocation, isAudio: Boolean): File =
+        when (location) {
+            DownloadSaveLocation.Downloads ->
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            DownloadSaveLocation.Movies, DownloadSaveLocation.MoviesDownMe ->
+                if (isAudio) {
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+                } else {
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+                }
+            DownloadSaveLocation.AppOnly ->
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+        }
+
     private fun triggerGalleryScan(
         context: Context,
         displayName: String,
         mime: String,
         isAudio: Boolean,
+        location: DownloadSaveLocation,
     ) {
-        val dir =
-            if (isAudio) {
-                File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC),
-                    "DownMe",
-                )
-            } else {
-                File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-                    "DownMe",
-                )
-            }
+        val publicRoot = publicRootFor(location, isAudio)
+        val sub = location.legacySubfolder(isAudio)
+        val dir = if (sub.isEmpty()) publicRoot else File(publicRoot, sub)
         val scanFile = File(dir, displayName)
         if (scanFile.isFile && scanFile.length() > 0L) {
             MediaScannerConnection.scanFile(
@@ -134,11 +144,12 @@ object SavedMediaPublisher {
         }
     }
 
-    private fun copyToPublicMoviesLegacy(
+    private fun copyToPublicLegacy(
         context: Context,
         source: File,
         displayName: String,
         mime: String,
+        location: DownloadSaveLocation,
     ): String? {
         if (ContextCompat.checkSelfPermission(
                 context,
@@ -148,13 +159,14 @@ object SavedMediaPublisher {
             return null
         }
         val isAudio = mime.startsWith("audio/")
-        val publicRoot =
-            if (isAudio) {
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+        val publicRoot = publicRootFor(location, isAudio)
+        val sub = location.legacySubfolder(isAudio)
+        val destDir =
+            if (sub.isEmpty()) {
+                publicRoot.apply { mkdirs() }
             } else {
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+                File(publicRoot, sub).apply { mkdirs() }
             }
-        val destDir = File(publicRoot, "DownMe").apply { mkdirs() }
         val stem = displayName.substringBeforeLast('.')
         val extPart = displayName.substringAfterLast('.', "")
         var dest = File(destDir, displayName)

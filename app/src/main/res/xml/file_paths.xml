@@ -6,11 +6,22 @@
     <external-files-path
         name="down_me_music"
         path="Music/DownMe/" />
-    <!-- Public export (Android 9 and below, when storage permission granted) -->
     <external-path
         name="down_me_public_movies"
         path="Movies/DownMe/" />
     <external-path
         name="down_me_public_music"
         path="Music/DownMe/" />
+    <external-path
+        name="public_movies"
+        path="Movies/" />
+    <external-path
+        name="public_music"
+        path="Music/" />
+    <external-path
+        name="public_downloads"
+        path="Download/" />
+    <external-path
+        name="public_downloads_downme"
+        path="Download/DownMe/" />
 </paths>

@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Chat
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
@@ -38,8 +38,12 @@ private val ContactLineHeight =
 fun SupportContactBlock(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val websiteUrl = stringResource(R.string.support_website_url).trim()
+    val privacyPolicyUrl = stringResource(R.string.privacy_policy_url).trim()
+    val supportEmail = stringResource(R.string.support_email).trim()
     val chatUrl = stringResource(R.string.support_chat_url).trim()
     val hasWebsite = websiteUrl.isNotEmpty()
+    val hasPrivacyPolicy = privacyPolicyUrl.isNotEmpty()
+    val hasEmail = supportEmail.isNotEmpty()
     val hasChat = chatUrl.isNotEmpty()
     val bodyStyle =
         MaterialTheme.typography.bodyMedium.copy(
@@ -51,7 +55,7 @@ fun SupportContactBlock(modifier: Modifier = Modifier) {
         Text(
             text =
                 stringResource(
-                    if (hasWebsite || hasChat) {
+                    if (hasWebsite || hasPrivacyPolicy || hasEmail || hasChat) {
                         R.string.about_contact_body
                     } else {
                         R.string.about_contact_body_pending
@@ -59,7 +63,7 @@ fun SupportContactBlock(modifier: Modifier = Modifier) {
                 ),
             style = bodyStyle,
         )
-        if (hasWebsite || hasChat) {
+        if (hasWebsite || hasPrivacyPolicy || hasEmail || hasChat) {
             Spacer(modifier = Modifier.height(2.dp))
         }
         if (hasWebsite) {
@@ -79,6 +83,40 @@ fun SupportContactBlock(modifier: Modifier = Modifier) {
                 }
             }
         }
+        if (hasPrivacyPolicy) {
+            FilledTonalButton(
+                onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(privacyPolicyUrl)))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(Icons.Outlined.Language, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(stringResource(R.string.cta_privacy_policy))
+                }
+            }
+        }
+        if (hasEmail) {
+            FilledTonalButton(
+                onClick = {
+                    context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$supportEmail")))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(stringResource(R.string.cta_contact_support))
+                }
+            }
+        }
         if (hasChat) {
             FilledTonalButton(
                 onClick = {
@@ -90,7 +128,7 @@ fun SupportContactBlock(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    Icon(Icons.Outlined.Chat, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(stringResource(R.string.cta_contact_support))
                 }

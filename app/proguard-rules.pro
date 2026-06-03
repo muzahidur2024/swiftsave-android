@@ -1,2 +1,9 @@
 -keep class com.yausername.** { *; }
+-keep class com.yausername.youtubedl_android.** { *; }
+-keep class com.yausername.ffmpeg.** { *; }
+-keep class com.downme.app.util.YoutubeDlInitializer { *; }
+-keep class com.downme.app.download.** { *; }
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -dontwarn org.apache.commons.**
+-dontwarn com.fasterxml.jackson.**
+-dontwarn org.bouncycastle.**

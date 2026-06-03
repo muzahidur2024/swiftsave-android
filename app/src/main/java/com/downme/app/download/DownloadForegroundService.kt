@@ -17,6 +17,7 @@ import com.downme.app.DownMeApplication
 import com.downme.app.data.DownloadEntity
 import com.downme.app.data.DownloadStatus
 import com.downme.app.util.SavedMediaPublisher
+import kotlinx.coroutines.flow.first
 import com.downme.app.util.UrlUtils
 import com.downme.app.util.YoutubeDlInitializer
 import com.downme.app.util.YtDlpFormats
@@ -182,7 +183,8 @@ class DownloadForegroundService : Service() {
                 ),
             )
 
-            val outDir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES), "DownMe").apply { mkdirs() }
+            val saveLocation = app.userPreferences.downloadLocation.first()
+            val outDir = SavedMediaPublisher.stagingDir(applicationContext)
             clearStaleOutputs(outDir, jobId)
             val outputTemplate = File(outDir, jobId).absolutePath + ".%(ext)s"
             val request = YoutubeDLRequest(downloadUrl)
@@ -226,6 +228,7 @@ class DownloadForegroundService : Service() {
                     file,
                     title,
                     jobId,
+                    saveLocation,
                 )
             val storedPath = publishedPath ?: file.absolutePath
             dao.markComplete(

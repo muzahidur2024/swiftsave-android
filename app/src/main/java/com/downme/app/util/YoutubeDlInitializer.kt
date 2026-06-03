@@ -3,6 +3,7 @@ package com.downme.app.util
 import android.content.Context
 import android.util.Log
 import com.downme.app.BuildConfig
+import com.downme.app.R
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLException
@@ -31,6 +32,8 @@ object YoutubeDlInitializer {
             withContext(Dispatchers.IO) {
                 try {
                     val appContext = context.applicationContext
+                    // Direct reference so release resource shrinking keeps @raw/ytdlp.
+                    runCatching { appContext.resources.openRawResource(R.raw.ytdlp).close() }
                     val youtubeDl = YoutubeDL.getInstance()
                     youtubeDl.init(appContext)
                     FFmpeg.getInstance().init(appContext)
@@ -38,7 +41,7 @@ object YoutubeDlInitializer {
                     initialized = true
                     if (BuildConfig.DEBUG) Log.i(TAG, "YouTube-DL / FFmpeg ready")
                 } catch (e: YoutubeDLException) {
-                    if (BuildConfig.DEBUG) Log.e(TAG, "Failed to initialize YouTube-DL / FFmpeg", e)
+                    Log.e(TAG, "Failed to initialize YouTube-DL / FFmpeg", e)
                     throw e
                 }
             }
