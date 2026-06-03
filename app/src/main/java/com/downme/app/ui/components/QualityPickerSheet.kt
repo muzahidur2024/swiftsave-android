@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.downme.app.R
 import com.downme.app.ui.screens.MUSIC_QUALITY_PRESETS
 import com.downme.app.ui.screens.QualityPreset
@@ -43,12 +47,15 @@ fun QualityPickerSheetContent(
                 Modifier
                     .widthIn(max = 400.dp)
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+                    .navigationBarsPadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 stringResource(R.string.quality_sheet_title),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             QualityPickerGrid(
@@ -70,12 +77,14 @@ fun QualityPickerSheetContent(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .height(44.dp),
                 shape = MaterialTheme.shapes.medium,
             ) {
-                Text(stringResource(R.string.start_download))
+                Text(
+                    stringResource(R.string.start_download),
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
@@ -91,14 +100,14 @@ private fun QualityPickerGrid(
     if (qualities.isEmpty()) return
     Text(
         title,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontWeight = FontWeight.SemiBold,
     )
     qualities.chunked(columns).forEach { rowItems ->
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             rowItems.forEach { quality ->
                 QualityPickerOption(
@@ -124,7 +133,7 @@ private fun QualityPickerOption(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.height(56.dp),
+        modifier = modifier.height(44.dp),
         shape = MaterialTheme.shapes.medium,
         colors =
             CardDefaults.cardColors(
@@ -153,7 +162,7 @@ private fun QualityPickerOption(
         ) {
             Text(
                 quality.label,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp),
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                 color =
                     if (selected) {
