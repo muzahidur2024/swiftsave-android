@@ -84,7 +84,7 @@ fun LibraryScreen() {
         ) {
             if (downloading.isNotEmpty()) {
                 item {
-                    SectionTitle("Downloading (${downloading.size})")
+                    SectionTitle(stringResource(R.string.library_section_downloading, downloading.size))
                 }
                 items(downloading, key = { it.id }) { row ->
                     DownloadRow(
@@ -102,7 +102,7 @@ fun LibraryScreen() {
             }
             if (done.isNotEmpty()) {
                 item {
-                    SectionTitle("Downloaded (${done.size})")
+                    SectionTitle(stringResource(R.string.library_section_downloaded, done.size))
                 }
                 items(done, key = { it.id }) { row ->
                     DownloadRow(
@@ -162,7 +162,7 @@ fun LibraryScreen() {
             }
             if (failed.isNotEmpty()) {
                 item {
-                    SectionTitle("Failed (${failed.size})")
+                    SectionTitle(stringResource(R.string.library_section_failed, failed.size))
                 }
                 items(failed, key = { it.id }) { row ->
                     DownloadRow(
@@ -182,7 +182,7 @@ fun LibraryScreen() {
             if (items.isEmpty()) {
                 item {
                     Text(
-                        "No downloads yet. Paste a link on the Download tab or share from YouTube.",
+                        stringResource(R.string.library_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     )
@@ -238,7 +238,7 @@ private fun DownloadRow(
                 Text(item.title, style = MaterialTheme.typography.titleMedium)
                 if (item.status == DownloadStatus.DOWNLOADING) {
                     Text(
-                        "${item.progress}%",
+                        stringResource(R.string.library_progress_percent, item.progress),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -255,8 +255,11 @@ private fun DownloadRow(
                     buildList {
                         when (item.status) {
                             DownloadStatus.DOWNLOADING -> {}
-                            DownloadStatus.DONE -> item.fileSize?.let { add("%.1f MB".format(it / (1024.0 * 1024.0))) }
-                            DownloadStatus.FAILED -> add(item.errorMessage ?: "Error")
+                            DownloadStatus.DONE ->
+                                item.fileSize?.let {
+                                    add(stringResource(R.string.library_size_mb, it / (1024.0 * 1024.0)))
+                                }
+                            DownloadStatus.FAILED -> add(item.errorMessage ?: stringResource(R.string.library_error_generic))
                             DownloadStatus.CANCELLED -> add(item.errorMessage ?: cancelledText)
                             else -> {}
                         }

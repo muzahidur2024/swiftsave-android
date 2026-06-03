@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.swiftsave.app.R
 import com.swiftsave.app.SwiftSaveApplication
-import com.swiftsave.app.ui.components.PremiumHarvestContactBlock
+import com.swiftsave.app.ui.components.SupportContactBlock
 import com.swiftsave.app.ui.components.VisualDownloadGuideStrip
 import kotlinx.coroutines.launch
 
@@ -169,7 +169,7 @@ fun SettingsScreen(
                             ),
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    PremiumHarvestContactBlock()
+                    SupportContactBlock()
                 }
             }
         }

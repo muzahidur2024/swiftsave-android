@@ -46,7 +46,10 @@ fun TutorialScreen(onBack: () -> Unit) {
                 title = { Text(stringResource(R.string.how_to_download)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.content_desc_back),
+                        )
                     }
                 },
             )
@@ -63,21 +66,21 @@ fun TutorialScreen(onBack: () -> Unit) {
         ) {
             TutorialStep(
                 n = 1,
-                text = "Open YouTube (or another app) and tap Share on the video you want.",
+                text = stringResource(R.string.tutorial_step_1),
                 icon = {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(32.dp))
                 },
             )
             TutorialStep(
                 n = 2,
-                text = "If you do not see SwiftSave, tap More in the share sheet.",
+                text = stringResource(R.string.tutorial_step_2),
                 icon = {
                     Icon(Icons.Default.MoreHoriz, contentDescription = null, modifier = Modifier.size(32.dp))
                 },
             )
             TutorialStep(
                 n = 3,
-                text = "Choose SwiftSave. The link opens in the app and you can start the download.",
+                text = stringResource(R.string.tutorial_step_3),
                 icon = {
                     Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(32.dp))
                 },

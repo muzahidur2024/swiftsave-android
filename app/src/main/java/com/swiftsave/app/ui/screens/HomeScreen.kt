@@ -50,7 +50,7 @@ import com.swiftsave.app.SwiftSaveApplication
 import com.swiftsave.app.data.DownloadEntity
 import com.swiftsave.app.data.DownloadStatus
 import com.swiftsave.app.download.DownloadForegroundService
-import com.swiftsave.app.ui.components.PremiumHarvestContactBlock
+import com.swiftsave.app.ui.components.SupportContactBlock
 import com.swiftsave.app.util.UrlUtils
 import java.util.UUID
 import kotlinx.coroutines.launch
@@ -202,7 +202,7 @@ fun HomeScreen(
                         .padding(top = 24.dp, bottom = 8.dp),
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
             )
-            PremiumHarvestAboutSection()
+            AboutSection()
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -215,7 +215,7 @@ private val AboutLineHeight =
     )
 
 @Composable
-private fun PremiumHarvestAboutSection() {
+private fun AboutSection() {
     val bodyStyle =
         MaterialTheme.typography.bodyMedium.copy(
             lineHeight = 24.sp,
@@ -241,12 +241,6 @@ private fun PremiumHarvestAboutSection() {
         AboutCard(title = stringResource(R.string.about_app_title), titleStyle = titleStyle) {
             Text(text = stringResource(R.string.about_app_body), style = bodyStyle)
         }
-        AboutCard(title = stringResource(R.string.about_leadership_title), titleStyle = titleStyle) {
-            Text(text = stringResource(R.string.about_leadership_body), style = bodyStyle)
-        }
-        AboutCard(title = stringResource(R.string.about_purity_title), titleStyle = titleStyle) {
-            Text(text = stringResource(R.string.about_purity_body), style = bodyStyle)
-        }
         AboutCard(title = stringResource(R.string.about_disclaimer_title), titleStyle = titleStyle) {
             Text(
                 text = stringResource(R.string.about_disclaimer_body),
@@ -257,7 +251,7 @@ private fun PremiumHarvestAboutSection() {
             )
         }
         AboutCard(title = stringResource(R.string.about_contact_title), titleStyle = titleStyle) {
-            PremiumHarvestContactBlock()
+            SupportContactBlock()
         }
     }
 }
