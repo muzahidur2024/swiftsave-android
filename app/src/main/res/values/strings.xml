@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SwiftSave</string>
-    <string name="download_channel_id">swift_save_downloads</string>
+    <string name="app_name">DownMe</string>
+    <string name="download_channel_id">down_me_downloads</string>
     <string name="download_channel_name">Downloads</string>
     <string name="download_notification_title">Downloading</string>
     <string name="download_complete">Download finished</string>
@@ -9,6 +9,7 @@
     <string name="download_cancelled">Download cancelled</string>
     <string name="download_interrupted">Download interrupted. Please retry.</string>
     <string name="download_error_safe">Download failed. Please check the link and try again.</string>
+    <string name="download_error_format">That quality is not available for this video. Try Best or a lower resolution.</string>
     <string name="cancel_download">Cancel</string>
     <string name="tab_download">Download</string>
     <string name="tab_library">Library</string>
@@ -17,23 +18,26 @@
     <string name="open_youtube">Open YouTube</string>
     <string name="content_desc_back">Back</string>
     <string name="tutorial_step_1">Open YouTube (or another app) and tap Share on the video you want.</string>
-    <string name="tutorial_step_2">If you do not see SwiftSave, tap More in the share sheet.</string>
-    <string name="tutorial_step_3">Choose SwiftSave. The download starts in the background; check progress in Library.</string>
+    <string name="tutorial_step_2">If you do not see DownMe, tap More in the share sheet.</string>
+    <string name="tutorial_step_3">Choose DownMe. The download starts in the background; check progress in Library.</string>
     <string name="hint_search_url">Search or paste link</string>
     <string name="start_download">Download</string>
     <string name="quality_label">Quality</string>
     <string name="paste_valid_url">Paste a valid https URL</string>
     <string name="share">Share</string>
+    <string name="play">Play</string>
     <string name="delete">Delete</string>
+    <string name="library_file_missing">File not found. It may have been removed from storage.</string>
+    <string name="library_action_unavailable">This file is not available on device storage.</string>
     <string name="retry">Retry</string>
-    <string name="storage_path">Videos appear in your Gallery and under Movies/SwiftSave (audio under Music/SwiftSave). Older Android may need storage permission once for the same folders.</string>
+    <string name="storage_path">Videos appear in your Gallery and under Movies/DownMe (audio under Music/DownMe). Older Android may need storage permission once for the same folders.</string>
     <string name="default_quality_title">Default quality</string>
     <string name="settings_help_section_title">How to download</string>
-    <string name="settings_visual_guide_summary">Share a video from YouTube (or another app), pick SwiftSave from the share sheet, then track the download in Library.</string>
+    <string name="settings_visual_guide_summary">Share a video from YouTube (or another app), pick DownMe from the share sheet, then track the download in Library.</string>
     <string name="settings_open_full_guide">Open step-by-step guide</string>
     <string name="visual_guide_step_share">Share</string>
     <string name="visual_guide_step_more">More</string>
-    <string name="visual_guide_step_swiftsave">SwiftSave</string>
+    <string name="visual_guide_step_app">DownMe</string>
     <string name="preparing_download">Preparing download…</string>
     <string name="notification_download_progress">Downloading — %1$d%%</string>
 
@@ -45,11 +49,11 @@
     <string name="library_progress_percent">%1$d%%</string>
     <string name="library_size_mb">%.1f MB</string>
 
-    <string name="about_section_header">About SwiftSave</string>
+    <string name="about_section_header">About DownMe</string>
     <string name="about_app_title">About this app</string>
-    <string name="about_app_body">SwiftSave is a free video downloader with no ads. Paste or share a link to save videos in the quality you choose. We built it for a simple, uninterrupted download experience.</string>
+    <string name="about_app_body">DownMe is a free video downloader with no ads. Paste or share a link to save videos in the quality you choose. We built it for a simple, uninterrupted download experience.</string>
     <string name="about_disclaimer_title">Disclaimer</string>
-    <string name="about_disclaimer_body">This app is for personal use only. Respect copyright and the terms of the sites you download from. SwiftSave does not guarantee availability, speed, or success for every link.</string>
+    <string name="about_disclaimer_body">This app is for personal use only. Respect copyright and the terms of the sites you download from. DownMe does not guarantee availability, speed, or success for every link.</string>
     <string name="about_contact_title">Support</string>
     <string name="about_contact_body">Questions or feedback? Use the buttons below when support links are configured.</string>
     <string name="about_contact_body_pending">Support links are not configured yet. Check back after the next app update.</string>

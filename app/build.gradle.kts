@@ -8,7 +8,11 @@ plugins {
 import java.io.FileInputStream
 import java.util.Properties
 
-val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystorePropertiesFile =
+    listOf(
+        rootProject.file("keystore.properties"),
+        rootProject.file("swiftsave-android/keystore.properties"),
+    ).firstOrNull { it.exists() } ?: rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 val hasReleaseKeystore =
     keystorePropertiesFile.exists().also { exists ->
@@ -22,11 +26,11 @@ val allowDebugReleaseSigning =
         .getOrElse(false)
 
 android {
-    namespace = "com.swiftsave.app"
+    namespace = "com.downme.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.swiftsave.app"
+        applicationId = "com.downme.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -148,6 +152,9 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 
     implementation("io.coil-kt:coil-compose:2.7.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.5.1")
+    implementation("androidx.media3:media3-ui:1.5.1")
 
     // On-device yt-dlp + FFmpeg: youtubedl-android bundles Python, yt-dlp, and FFmpeg for Android.
     implementation("io.github.junkfood02.youtubedl-android:library:$youtubedlVersion")

@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SwiftSave"
+rootProject.name = "DownMe"
 include(":app")
