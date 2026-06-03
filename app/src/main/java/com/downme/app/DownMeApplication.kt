@@ -46,9 +46,7 @@ class DownMeApplication : Application() {
         applicationScope.launch {
             runCatching { YoutubeDlInitializer.ensureInitialized(this@DownMeApplication) }
                 .onFailure { e ->
-                    if (BuildConfig.DEBUG) {
-                        Log.w(TAG, "Background yt-dlp warm-up failed", e)
-                    }
+                    if (BuildConfig.DEBUG) Log.w(TAG, "Background yt-dlp warm-up failed", e)
                 }
         }
     }

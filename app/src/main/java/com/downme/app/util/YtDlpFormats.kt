@@ -4,11 +4,15 @@ import com.yausername.youtubedl_android.YoutubeDLRequest
 
 object YtDlpFormats {
 
-    private val validKeys = setOf("best", "2160", "1440", "1080", "720", "480", "mp3")
+    private val validKeys = setOf("1440", "1080", "720", "480", "mp3")
 
     fun normalizeQuality(qualityRaw: String?): String {
         val q = qualityRaw?.lowercase()?.trim().orEmpty()
-        return q.takeIf { it in validKeys } ?: "best"
+        return when {
+            q in validKeys -> q
+            q == "best" || q == "2160" -> "1080"
+            else -> "1080"
+        }
     }
 
     /** Apply network/retry options shared by all hosts. */

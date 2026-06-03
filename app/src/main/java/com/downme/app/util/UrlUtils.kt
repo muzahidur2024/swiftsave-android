@@ -5,6 +5,8 @@ import java.net.IDN
 
 object UrlUtils {
 
+    private const val MAX_URL_LENGTH = 2048
+
     private val urlRegex = Regex("https://[^\\s]+")
 
     private val youtubeHosts =
@@ -26,6 +28,7 @@ object UrlUtils {
 
     fun isSafeUrl(url: String): Boolean {
         val u = url.trim()
+        if (u.length > MAX_URL_LENGTH) return false
         if ('\n' in u || '\r' in u || ' ' in u) return false
         val parsed =
             try {
@@ -35,7 +38,29 @@ object UrlUtils {
             }
         if (parsed.scheme != "https") return false
         val host = parsed.host?.trim('.')?.lowercase()?.takeIf { it.isNotBlank() } ?: return false
+        if (isPrivateOrLocalHost(host)) return false
         return runCatching { IDN.toASCII(host) }.isSuccess
+    }
+
+    private fun isPrivateOrLocalHost(host: String): Boolean {
+        if (host == "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) {
+            return true
+        }
+        val lower = host.lowercase()
+        if (lower == "[::1]" || lower.startsWith("[fc") || lower.startsWith("[fd")) {
+            return true
+        }
+        val parts = host.split('.').mapNotNull { it.toIntOrNull() }
+        if (parts.size != 4) return false
+        val a = parts[0]
+        val b = parts[1]
+        return when {
+            a == 0 || a == 10 || a == 127 -> true
+            a == 169 && b == 254 -> true
+            a == 192 && b == 168 -> true
+            a == 172 && b in 16..31 -> true
+            else -> false
+        }
     }
 
     fun isYoutubeUrl(url: String): Boolean {

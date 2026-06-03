@@ -22,6 +22,7 @@ import com.downme.app.util.UrlUtils
 import com.downme.app.util.YoutubeDlInitializer
 import com.downme.app.util.YtDlpFormats
 import com.yausername.youtubedl_android.YoutubeDL
+import com.yausername.youtubedl_android.YoutubeDLException
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -50,22 +51,24 @@ class DownloadForegroundService : Service() {
         when (intent?.action) {
             ACTION_CANCEL -> {
                 val jobId = intent.getStringExtra(EXTRA_JOB_ID)
-                if (!jobId.isNullOrBlank()) {
+                if (!jobId.isNullOrBlank() && isValidJobId(jobId)) {
                     cancelDownload(jobId)
                 }
                 return START_NOT_STICKY
             }
             ACTION_START -> {
                 val jobId = intent.getStringExtra(EXTRA_JOB_ID) ?: return START_NOT_STICKY
+                if (!isValidJobId(jobId)) return START_NOT_STICKY
                 val url = intent.getStringExtra(EXTRA_URL) ?: return START_NOT_STICKY
-                val quality = intent.getStringExtra(EXTRA_QUALITY) ?: "best"
+                val normalizedUrl = UrlUtils.normalizeDownloadUrl(url) ?: return START_NOT_STICKY
+                val quality = intent.getStringExtra(EXTRA_QUALITY) ?: "1080"
                 jobsInFlight.incrementAndGet()
                 activeJobIds.add(jobId)
                 cancelledJobIds.remove(jobId)
                 scope.launch {
                     try {
                         serialLock.withLock {
-                            runDownload(jobId, url, quality)
+                            runDownload(jobId, normalizedUrl, quality)
                         }
                     } finally {
                         activeJobIds.remove(jobId)
@@ -105,7 +108,7 @@ class DownloadForegroundService : Service() {
     private suspend fun runDownload(jobId: String, url: String, qualityRaw: String) {
         val app = applicationContext as DownMeApplication
         val dao = app.database.downloadDao()
-        val downloadUrl = UrlUtils.normalizeDownloadUrl(url) ?: url.trim()
+        val downloadUrl = UrlUtils.normalizeDownloadUrl(url) ?: return
         val quality = YtDlpFormats.normalizeQuality(qualityRaw)
         var displayTitle = getString(R.string.preparing_download)
         startForeground(
@@ -191,9 +194,10 @@ class DownloadForegroundService : Service() {
             request.addOption("-o", outputTemplate)
             YtDlpFormats.applyForUrl(request, downloadUrl, quality)
             val response =
-                YtdlpDownloadExecutor.executeWithProgressCallback(
+                YoutubeDL.getInstance().execute(
                     request,
                     jobId,
+                    redirectErrorStream = true,
                 ) { progress, _, _ ->
                     val p = normalizePercent(progress)
                     scope.launch {
@@ -258,8 +262,12 @@ class DownloadForegroundService : Service() {
             val msg =
                 when {
                     wasCancelled -> getString(R.string.download_cancelled)
+                    e is YoutubeDLException ->
+                        e.message?.take(200) ?: getString(R.string.download_error_engine)
                     YtDlpFormats.isFormatUnavailableError(stderr) ->
                         getString(R.string.download_error_format)
+                    stderr.isNotBlank() ->
+                        YtDlpFormats.summarizeError(stderr) ?: getString(R.string.download_error_safe)
                     else -> getString(R.string.download_error_safe)
                 }
             dao.updateStatus(
@@ -376,16 +384,22 @@ class DownloadForegroundService : Service() {
         const val EXTRA_QUALITY = "quality"
 
         fun startDownload(context: Context, jobId: String, url: String, quality: String) {
+            val safeUrl = UrlUtils.normalizeDownloadUrl(url) ?: return
+            if (!isValidJobId(jobId)) return
             val i = Intent(context, DownloadForegroundService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_JOB_ID, jobId)
-                putExtra(EXTRA_URL, url)
+                putExtra(EXTRA_URL, safeUrl)
                 putExtra(EXTRA_QUALITY, YtDlpFormats.normalizeQuality(quality))
             }
             ContextCompat.startForegroundService(context, i)
         }
 
+        private fun isValidJobId(jobId: String): Boolean =
+            jobId.length in 8..64 && jobId.all { it.isLetterOrDigit() }
+
         fun cancelDownload(context: Context, jobId: String) {
+            if (!isValidJobId(jobId)) return
             val i = Intent(context, DownloadForegroundService::class.java).apply {
                 action = ACTION_CANCEL
                 putExtra(EXTRA_JOB_ID, jobId)

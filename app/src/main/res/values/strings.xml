@@ -9,7 +9,8 @@
     <string name="download_cancelled">Download cancelled</string>
     <string name="download_interrupted">Download interrupted. Please retry.</string>
     <string name="download_error_safe">Download failed. Please check the link and try again.</string>
-    <string name="download_error_format">That quality is not available for this video. Try Best or a lower resolution.</string>
+    <string name="download_error_engine">Download engine failed to start. Reinstall the app and try again.</string>
+    <string name="download_error_format">That quality is not available for this video. Try 1080p or a lower resolution.</string>
     <string name="cancel_download">Cancel</string>
     <string name="tab_download">Download</string>
     <string name="tab_library">Library</string>

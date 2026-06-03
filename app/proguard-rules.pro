@@ -1,8 +1,12 @@
 -keep class com.yausername.** { *; }
+-keep class com.yausername.youtubedl_common.** { *; }
 -keep class com.yausername.youtubedl_android.** { *; }
+-keep class com.yausername.youtubedl_android.mapper.** { *; }
 -keep class com.yausername.ffmpeg.** { *; }
 -keep class com.downme.app.util.YoutubeDlInitializer { *; }
 -keep class com.downme.app.download.** { *; }
+-keep class com.fasterxml.jackson.** { *; }
+-keep class org.apache.commons.io.** { *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -dontwarn org.apache.commons.**
 -dontwarn com.fasterxml.jackson.**

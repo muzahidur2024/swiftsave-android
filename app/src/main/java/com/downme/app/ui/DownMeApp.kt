@@ -133,7 +133,7 @@ fun DownMeApp(
                     )
                 }
                 composable(TabDestination.Settings.route) {
-                    SettingsScreen(onOpenTutorial = { navController.navigate("tutorial") })
+                    SettingsScreen()
                 }
                 composable("tutorial") {
                     TutorialScreen(

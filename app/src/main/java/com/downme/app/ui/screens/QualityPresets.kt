@@ -4,11 +4,15 @@ internal data class QualityPreset(val key: String, val label: String)
 
 internal val QUALITY_PRESETS: List<QualityPreset> =
     listOf(
-        QualityPreset("best", "Best"),
-        QualityPreset("2160", "4K"),
         QualityPreset("1440", "1440p"),
         QualityPreset("1080", "1080p"),
         QualityPreset("720", "720p"),
         QualityPreset("480", "480p"),
         QualityPreset("mp3", "MP3"),
     )
+
+internal val VIDEO_QUALITY_PRESETS: List<QualityPreset> =
+    QUALITY_PRESETS.filter { it.key != "mp3" }
+
+internal val MUSIC_QUALITY_PRESETS: List<QualityPreset> =
+    QUALITY_PRESETS.filter { it.key == "mp3" }

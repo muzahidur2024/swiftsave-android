@@ -10,20 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -43,15 +35,13 @@ import com.downme.app.R
 import com.downme.app.DownMeApplication
 import com.downme.app.data.AppThemeMode
 import com.downme.app.data.DownloadSaveLocation
-import com.downme.app.ui.components.SupportContactBlock
-import com.downme.app.ui.components.VisualDownloadGuideStrip
+import com.downme.app.ui.components.AboutDownMeSection
+import com.downme.app.ui.components.LegalSupportSection
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun SettingsScreen(
-    onOpenTutorial: () -> Unit,
-) {
+fun SettingsScreen() {
     val context = LocalContext.current
     val app = context.applicationContext as DownMeApplication
     val quality by app.userPreferences.defaultQuality.collectAsStateWithLifecycle(initialValue = "1080")
@@ -77,7 +67,7 @@ fun SettingsScreen(
             modifier =
                 Modifier
                     .padding(padding)
-                    .padding(16.dp)
+                    .padding(horizontal = 20.dp)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -85,12 +75,12 @@ fun SettingsScreen(
             Spacer(Modifier.height(4.dp))
             Text(
                 stringResource(R.string.settings_intro_title),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 stringResource(R.string.settings_intro_body),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
@@ -109,7 +99,7 @@ fun SettingsScreen(
                 }
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            SettingsDivider()
 
             SettingsSectionTitle(stringResource(R.string.download_path_title))
             FlowRow(
@@ -128,17 +118,17 @@ fun SettingsScreen(
             Text(
                 stringResource(downloadLocation.pathHintRes),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
             )
             Text(
                 stringResource(R.string.download_path_note),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            SettingsDivider()
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -150,7 +140,7 @@ fun SettingsScreen(
                     Text(
                         stringResource(R.string.quality_prompt_summary),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Switch(
@@ -161,7 +151,7 @@ fun SettingsScreen(
                 )
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            SettingsDivider()
 
             SettingsSectionTitle(stringResource(R.string.default_quality_title))
             FlowRow(
@@ -180,75 +170,29 @@ fun SettingsScreen(
                 }
             }
 
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            SettingsDivider()
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Text(
-                        stringResource(R.string.settings_help_section_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    VisualDownloadGuideStrip()
-                    Text(
-                        stringResource(R.string.settings_visual_guide_summary),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
-                    )
-                    FilledTonalButton(
-                        onClick = onOpenTutorial,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp))
-                            Spacer(Modifier.width(10.dp))
-                            Text(stringResource(R.string.settings_open_full_guide))
-                        }
-                    }
-                }
-            }
+            AboutDownMeSection()
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Text(
-                        text = stringResource(R.string.legal_support_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    SupportContactBlock()
-                }
-            }
-            Spacer(Modifier.height(8.dp))
+            LegalSupportSection()
+
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
+private fun SettingsDivider() {
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
 private fun SettingsSectionTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.titleMedium)
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onBackground,
+    )
 }
 
 @Composable
