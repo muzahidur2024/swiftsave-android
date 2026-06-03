@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
@@ -38,10 +39,12 @@ private val ContactLineHeight =
 fun SupportContactBlock(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val websiteUrl = stringResource(R.string.support_website_url).trim()
+    val downloadPageUrl = stringResource(R.string.download_page_url).trim()
     val privacyPolicyUrl = stringResource(R.string.privacy_policy_url).trim()
     val supportEmail = stringResource(R.string.support_email).trim()
     val chatUrl = stringResource(R.string.support_chat_url).trim()
     val hasWebsite = websiteUrl.isNotEmpty()
+    val hasDownloadPage = downloadPageUrl.isNotEmpty()
     val hasPrivacyPolicy = privacyPolicyUrl.isNotEmpty()
     val hasEmail = supportEmail.isNotEmpty()
     val hasChat = chatUrl.isNotEmpty()
@@ -55,7 +58,7 @@ fun SupportContactBlock(modifier: Modifier = Modifier) {
         Text(
             text =
                 stringResource(
-                    if (hasWebsite || hasPrivacyPolicy || hasEmail || hasChat) {
+                    if (hasWebsite || hasDownloadPage || hasPrivacyPolicy || hasEmail || hasChat) {
                         R.string.about_contact_body
                     } else {
                         R.string.about_contact_body_pending
@@ -63,8 +66,25 @@ fun SupportContactBlock(modifier: Modifier = Modifier) {
                 ),
             style = bodyStyle,
         )
-        if (hasWebsite || hasPrivacyPolicy || hasEmail || hasChat) {
+        if (hasWebsite || hasDownloadPage || hasPrivacyPolicy || hasEmail || hasChat) {
             Spacer(modifier = Modifier.height(2.dp))
+        }
+        if (hasDownloadPage) {
+            Button(
+                onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(downloadPageUrl)))
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(Icons.Outlined.Download, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(stringResource(R.string.cta_get_app))
+                }
+            }
         }
         if (hasWebsite) {
             Button(

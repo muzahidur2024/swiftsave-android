@@ -1,6 +1,7 @@
 # Local release signing (never commit real secrets)
 keystore.properties
 *.jks
+*.p12
 *.keystore
 
 # Android / Gradle

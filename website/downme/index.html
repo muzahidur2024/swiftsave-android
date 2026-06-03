@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="DownMe — free Android video downloader by Tefarab AI. No ads. Downloads stay on your device."
+    />
+    <title>DownMe — Download for Android</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b1220;
+        --card: #141e33;
+        --text: #e8eef8;
+        --muted: #9aa8c4;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --border: rgba(255, 255, 255, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "DM Sans", system-ui, sans-serif;
+        background: radial-gradient(ellipse 120% 80% at 50% -20%, #1a2d52 0%, var(--bg) 55%);
+        color: var(--text);
+        line-height: 1.55;
+      }
+      .wrap {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 3rem;
+      }
+      .brand {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+        background: linear-gradient(145deg, var(--accent), #1d4ed8);
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        margin-bottom: 1rem;
+        box-shadow: 0 12px 40px rgba(59, 130, 246, 0.35);
+      }
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.35rem;
+        letter-spacing: -0.02em;
+      }
+      .tagline {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin: 0;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.35rem 1.25rem;
+        margin-bottom: 1rem;
+      }
+      .card h2 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.75rem;
+        font-weight: 600;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 0.95rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: inherit;
+        color: #fff;
+        background: var(--accent);
+        border: none;
+        border-radius: 12px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn:hover {
+        background: var(--accent-hover);
+      }
+      .meta {
+        margin-top: 0.85rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-align: center;
+      }
+      ol {
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+      ol li {
+        margin-bottom: 0.5rem;
+      }
+      ol li:last-child {
+        margin-bottom: 0;
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-top: 0.75rem;
+      }
+      .links a {
+        color: var(--accent);
+        font-size: 0.9rem;
+        text-decoration: none;
+      }
+      .links a:hover {
+        text-decoration: underline;
+      }
+      .hash {
+        font-family: ui-monospace, monospace;
+        font-size: 0.7rem;
+        word-break: break-all;
+        color: var(--muted);
+        margin-top: 0.75rem;
+        line-height: 1.4;
+      }
+      footer {
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 2rem;
+      }
+      footer a {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body
+    data-version="1.0.1"
+    data-apk-file="DownMe-1.0.1-arm64.apk"
+    data-sha256="F870EA0BCDFBC32E84B3EE099DAD85DBDBBDEA854BB1135D886720E7694C9A48"
+    data-size-mb="66.8"
+  >
+    <div class="wrap">
+      <header class="brand">
+        <div class="logo" aria-hidden="true">DM</div>
+        <h1>DownMe</h1>
+        <p class="tagline">Save videos on your phone — no account, no ads</p>
+      </header>
+
+      <section class="card">
+        <h2>Download</h2>
+        <a id="download-btn" class="btn" href="#">Download APK for Android</a>
+        <p class="meta" id="meta-line">Version 1.0.1 · ~67 MB · Android 7+ (arm64)</p>
+        <p class="hash" id="sha-line" hidden></p>
+      </section>
+
+      <section class="card">
+        <h2>Install</h2>
+        <ol>
+          <li>Tap <strong>Download APK</strong> above and wait for the file to finish.</li>
+          <li>Open the file from your browser or <strong>Files → Downloads</strong>.</li>
+          <li>If asked, allow installs from your browser (<strong>Install unknown apps</strong>).</li>
+          <li>Tap <strong>Install</strong>, then open DownMe and allow notifications for download progress.</li>
+          <li>Paste a link on the home screen, or <strong>Share → DownMe</strong> from YouTube or your browser.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>Legal &amp; support</h2>
+        <p style="margin: 0 0 0.5rem; font-size: 0.9rem; color: var(--muted)">
+          For personal use only. Respect copyright and each platform’s terms. Built by
+          <strong style="color: var(--text)">Tefarab AI</strong>.
+        </p>
+        <div class="links">
+          <a href="https://www.tefarab.xyz/privacy-downme">Privacy policy</a>
+          <a href="https://www.tefarab.xyz/#work">Our work</a>
+          <a href="mailto:muzahidur2024@gmail.com">Email support</a>
+        </div>
+      </section>
+
+      <footer>
+        <a href="https://www.tefarab.xyz/">tefarab.xyz</a>
+      </footer>
+    </div>
+    <script>
+      (function () {
+        var root = document.body;
+        var version = root.getAttribute("data-version") || "1.0.1";
+        var apkFile = root.getAttribute("data-apk-file") || "DownMe-" + version + "-arm64.apk";
+        var sizeMb = root.getAttribute("data-size-mb") || "67";
+        var sha = (root.getAttribute("data-sha256") || "").trim();
+        var apkUrl = "https://www.tefarab.xyz/downloads/" + encodeURIComponent(apkFile);
+        var btn = document.getElementById("download-btn");
+        btn.href = apkUrl;
+        btn.setAttribute("download", apkFile);
+        document.getElementById("meta-line").textContent =
+          "Version " + version + " · ~" + sizeMb + " MB · Android 7+ (arm64)";
+        if (sha) {
+          var el = document.getElementById("sha-line");
+          el.hidden = false;
+          el.textContent = "SHA-256: " + sha;
+        }
+      })();
+    </script>
+  </body>
+</html>

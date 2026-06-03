@@ -89,6 +89,8 @@
     <string name="cta_contact_support">Email support</string>
 
     <string name="support_website_url">https://www.tefarab.xyz/#work</string>
+    <string name="download_page_url">https://www.tefarab.xyz/downme/</string>
+    <string name="cta_get_app">Get DownMe on the web</string>
     <string name="privacy_policy_url">https://www.tefarab.xyz/privacy-downme</string>
     <string name="support_email">muzahidur2024@gmail.com</string>
     <string name="support_chat_url"></string>
