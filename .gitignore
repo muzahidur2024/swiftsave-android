@@ -1,0 +1,13 @@
+# Local release signing (never commit real secrets)
+keystore.properties
+*.jks
+*.keystore
+
+# Android / Gradle
+.gradle/
+build/
+**/build/
+local.properties
+captures/
+*.iml
+.idea/

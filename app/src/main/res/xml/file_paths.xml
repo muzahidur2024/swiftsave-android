@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-files-path
+        name="swift_save_media"
+        path="Movies/SwiftSave/" />
+    <!-- Public export (Android 9 and below, when storage permission granted) -->
+    <external-path
+        name="swift_public_movies"
+        path="Movies/SwiftSave/" />
+    <external-path
+        name="swift_public_music"
+        path="Music/SwiftSave/" />
+</paths>
