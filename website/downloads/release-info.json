@@ -1,10 +1,10 @@
 ﻿{
-    "downloadPath":  "/downloads/DownMe-1.0.3-arm64.apk",
-    "apkFile":  "DownMe-1.0.3-arm64.apk",
-    "builtAt":  "2026-06-05 16:52 UTC",
-    "versionCode":  4,
+    "downloadPath":  "/downloads/DownMe-1.0.4-arm64.apk",
+    "apkFile":  "DownMe-1.0.4-arm64.apk",
+    "builtAt":  "2026-06-05 17:39 UTC",
+    "versionCode":  5,
     "sizeMb":  66.9,
     "app":  "DownMe",
-    "versionName":  "1.0.3",
-    "sha256":  "B9E9936DACABF1AF28A0A5CC9E6352F71C20F601D932B2BEB85E8CDC28704B8C"
+    "versionName":  "1.0.4",
+    "sha256":  "4E5B5EAE9C5C71EF41451F9D77CF03768B822674529F1B70080E1339BA958A17"
 }
