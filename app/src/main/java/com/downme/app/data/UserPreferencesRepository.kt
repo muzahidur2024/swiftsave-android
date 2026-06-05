@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 private val KEY_QUALITY = stringPreferencesKey("default_quality")
-private val KEY_DOWNLOAD_LOCATION = stringPreferencesKey("download_location")
+private val KEY_CUSTOM_DOWNLOAD_FOLDER = stringPreferencesKey("custom_download_folder_uri")
 private val KEY_THEME = stringPreferencesKey("theme_mode")
 private val KEY_SHOW_QUALITY_PROMPT = booleanPreferencesKey("show_quality_prompt")
 
@@ -24,12 +24,12 @@ class UserPreferencesRepository(private val ctx: Context) {
 
     val defaultQuality: Flow<String> =
         dataStore.data.map { prefs ->
-            prefs[KEY_QUALITY] ?: "1080"
+            YtDlpFormats.normalizeQuality(prefs[KEY_QUALITY] ?: "1080")
         }
 
-    val downloadLocation: Flow<DownloadSaveLocation> =
+    val customDownloadFolderUri: Flow<String?> =
         dataStore.data.map { prefs ->
-            DownloadSaveLocation.fromId(prefs[KEY_DOWNLOAD_LOCATION])
+            prefs[KEY_CUSTOM_DOWNLOAD_FOLDER]?.takeIf { it.isNotBlank() }
         }
 
     val themeMode: Flow<AppThemeMode> =
@@ -46,8 +46,14 @@ class UserPreferencesRepository(private val ctx: Context) {
         dataStore.edit { it[KEY_QUALITY] = YtDlpFormats.normalizeQuality(value) }
     }
 
-    suspend fun setDownloadLocation(location: DownloadSaveLocation) {
-        dataStore.edit { it[KEY_DOWNLOAD_LOCATION] = location.id }
+    suspend fun setCustomDownloadFolderUri(uri: String?) {
+        dataStore.edit { prefs ->
+            if (uri.isNullOrBlank()) {
+                prefs.remove(KEY_CUSTOM_DOWNLOAD_FOLDER)
+            } else {
+                prefs[KEY_CUSTOM_DOWNLOAD_FOLDER] = uri
+            }
+        }
     }
 
     suspend fun setThemeMode(mode: AppThemeMode) {

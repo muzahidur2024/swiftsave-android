@@ -54,6 +54,7 @@ import com.downme.app.data.DownloadEntity
 import com.downme.app.data.DownloadStatus
 import com.downme.app.download.DownloadForegroundService
 import com.downme.app.util.MediaLibraryActions
+import com.downme.app.util.YtDlpFormats
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -245,10 +246,15 @@ private fun DownloadRow(
                         buildList {
                             when (item.status) {
                                 DownloadStatus.DOWNLOADING -> {}
-                                DownloadStatus.DONE ->
+                                DownloadStatus.DONE -> {
+                                    item.quality?.let {
+                                        add(stringResource(R.string.library_quality_label, YtDlpFormats.qualityLabel(it)))
+                                    }
                                     item.fileSize?.let {
                                         add(stringResource(R.string.library_size_mb, it / (1024.0 * 1024.0)))
                                     }
+                                    item.errorMessage?.let { add(it) }
+                                }
                                 DownloadStatus.FAILED ->
                                     add(item.errorMessage ?: stringResource(R.string.library_error_generic))
                                 DownloadStatus.CANCELLED ->

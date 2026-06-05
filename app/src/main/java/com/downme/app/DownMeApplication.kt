@@ -11,6 +11,7 @@ import com.downme.app.data.DownloadStatus
 import com.downme.app.data.UserPreferencesRepository
 import com.downme.app.data.buildAppDatabase
 import com.downme.app.download.DownloadForegroundService
+import com.downme.app.util.AppUpdateController
 import com.downme.app.util.UrlUtils
 import com.downme.app.util.YoutubeDlInitializer
 import com.downme.app.util.YtDlpFormats
@@ -29,6 +30,9 @@ class DownMeApplication : Application() {
     lateinit var userPreferences: UserPreferencesRepository
         private set
 
+    lateinit var appUpdateController: AppUpdateController
+        private set
+
     private val applicationJob = SupervisorJob()
     private val applicationScope = CoroutineScope(applicationJob + Dispatchers.IO)
 
@@ -36,6 +40,7 @@ class DownMeApplication : Application() {
         super.onCreate()
         database = buildAppDatabase(this)
         userPreferences = UserPreferencesRepository(this)
+        appUpdateController = AppUpdateController(this, applicationScope)
         ensureNotificationChannel()
         markInterruptedDownloadsFailed()
         warmUpYoutubeDlInBackground()

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.downme.app.MainActivity
@@ -20,6 +21,7 @@ import com.downme.app.util.SavedMediaPublisher
 import kotlinx.coroutines.flow.first
 import com.downme.app.util.UrlUtils
 import com.downme.app.util.YoutubeDlInitializer
+import com.downme.app.util.YtDlpFormatProbe
 import com.downme.app.util.YtDlpFormats
 import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLException
@@ -32,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -106,6 +109,15 @@ class DownloadForegroundService : Service() {
     }
 
     private suspend fun runDownload(jobId: String, url: String, qualityRaw: String) {
+        val wakeLock = acquireDownloadWakeLock()
+        try {
+            runDownloadInner(jobId, url, qualityRaw)
+        } finally {
+            releaseDownloadWakeLock(wakeLock)
+        }
+    }
+
+    private suspend fun runDownloadInner(jobId: String, url: String, qualityRaw: String) {
         val app = applicationContext as DownMeApplication
         val dao = app.database.downloadDao()
         val downloadUrl = UrlUtils.normalizeDownloadUrl(url) ?: return
@@ -122,6 +134,7 @@ class DownloadForegroundService : Service() {
             ),
         )
 
+        var durationSec: Double? = null
         try {
             val prep = getString(R.string.preparing_download)
             YoutubeDlInitializer.ensureInitialized(applicationContext)
@@ -158,17 +171,12 @@ class DownloadForegroundService : Service() {
                 ),
             )
 
-            val streamInfo =
-                try {
-                    YoutubeDL.getInstance().getInfo(downloadUrl)
-                } catch (_: Throwable) {
-                    null
-                }
-            val title = streamInfo?.title?.takeIf { it.isNotBlank() } ?: hostLabel ?: "Video"
+            val videoProbe = YtDlpFormatProbe.probeVideo(applicationContext, downloadUrl)
+            val title =
+                videoProbe.title?.takeIf { YtDlpFormatProbe.isUsableTitle(it) }
+                    ?: getString(R.string.download_untitled_video)
             displayTitle = title
-            val thumb = streamInfo?.thumbnail
-            val durationSec =
-                streamInfo?.duration?.let { v -> (v as? Number)?.toDouble() }
+            durationSec = videoProbe.durationSec
             dao.upsert(
                 DownloadEntity(
                     id = jobId,
@@ -177,7 +185,7 @@ class DownloadForegroundService : Service() {
                     filePath = null,
                     fileSize = null,
                     durationSec = durationSec,
-                    thumbnailUrl = thumb,
+                    thumbnailUrl = videoProbe.thumbnail,
                     createdAt = now,
                     status = DownloadStatus.DOWNLOADING,
                     progress = 0,
@@ -186,45 +194,123 @@ class DownloadForegroundService : Service() {
                 ),
             )
 
-            val saveLocation = app.userPreferences.downloadLocation.first()
+            val customFolderUri = app.userPreferences.customDownloadFolderUri.first()
             val outDir = SavedMediaPublisher.stagingDir(applicationContext)
-            clearStaleOutputs(outDir, jobId)
             val outputTemplate = File(outDir, jobId).absolutePath + ".%(ext)s"
-            val request = YoutubeDLRequest(downloadUrl)
-            request.addOption("-o", outputTemplate)
-            YtDlpFormats.applyForUrl(request, downloadUrl, quality)
-            val response =
-                YoutubeDL.getInstance().execute(
-                    request,
-                    jobId,
-                    redirectErrorStream = true,
-                ) { progress, _, _ ->
-                    val p = normalizePercent(progress)
-                    scope.launch {
-                        if (!cancelledJobIds.contains(jobId)) {
-                            dao.updateProgress(jobId, p)
-                            val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
-                            nm.notify(
-                                NOTIFICATION_ID,
-                                buildProgressNotification(
-                                    displayTitle,
-                                    getString(R.string.notification_download_progress, p),
-                                    p,
-                                    jobId,
-                                ),
-                            )
-                        }
-                    }
+            val requestedQuality = quality
+            val qualityAttempts =
+                YtDlpFormats.planQualityAttempts(requestedQuality, videoProbe.availableHeights)
+
+            var downloadedFile: File? = null
+            var usedQuality: String? = null
+            var lastFailure: Throwable? = null
+
+            for ((attemptIndex, attemptQuality) in qualityAttempts.withIndex()) {
+                if (cancelledJobIds.contains(jobId)) {
+                    throw YoutubeDL.CanceledException()
                 }
-            if (cancelledJobIds.contains(jobId)) {
-                throw YoutubeDL.CanceledException()
+                clearStaleOutputs(outDir, jobId)
+                if (attemptIndex > 0) {
+                    val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+                    nm.notify(
+                        NOTIFICATION_ID,
+                        buildProgressNotification(
+                            displayTitle,
+                            getString(
+                                R.string.download_trying_quality,
+                                YtDlpFormats.qualityLabel(attemptQuality),
+                            ),
+                            0,
+                            jobId,
+                            indeterminate = true,
+                        ),
+                    )
+                }
+                val request = YoutubeDLRequest(downloadUrl)
+                request.addOption("-o", outputTemplate)
+                YtDlpFormats.applyForUrl(
+                    applicationContext,
+                    request,
+                    downloadUrl,
+                    attemptQuality,
+                    durationSec,
+                )
+                try {
+                    val response =
+                        YoutubeDL.getInstance().execute(
+                            request,
+                            jobId,
+                            redirectErrorStream = true,
+                        ) { progress, _, _ ->
+                            val p = normalizePercent(progress).coerceAtMost(99)
+                            scope.launch {
+                                if (!cancelledJobIds.contains(jobId)) {
+                                    dao.updateProgress(jobId, p)
+                                    val nm =
+                                        getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+                                    nm.notify(
+                                        NOTIFICATION_ID,
+                                        buildProgressNotification(
+                                            displayTitle,
+                                            getString(R.string.notification_download_progress, p),
+                                            p,
+                                            jobId,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    if (cancelledJobIds.contains(jobId)) {
+                        throw YoutubeDL.CanceledException()
+                    }
+                    if (response.exitCode != 0) {
+                        val err =
+                            response.err?.trim().orEmpty().ifBlank { "Exit code ${response.exitCode}" }
+                        val failure = DownloadException(err)
+                        if (
+                            attemptIndex < qualityAttempts.lastIndex &&
+                            YtDlpFormats.shouldRetryWithLowerQuality(err, failure, attemptQuality)
+                        ) {
+                            lastFailure = failure
+                            continue
+                        }
+                        throw failure
+                    }
+                    val file = resolveOutputFileWithRetry(outDir, jobId)
+                    if (file == null) {
+                        val missing = IllegalStateException("Downloaded file not found")
+                        if (
+                            attemptIndex < qualityAttempts.lastIndex &&
+                            YtDlpFormats.shouldRetryWithLowerQuality("", missing, attemptQuality)
+                        ) {
+                            lastFailure = missing
+                            continue
+                        }
+                        throw missing
+                    }
+                    downloadedFile = file
+                    usedQuality = attemptQuality
+                    break
+                } catch (e: Throwable) {
+                    if (e is YoutubeDL.CanceledException || cancelledJobIds.contains(jobId)) {
+                        throw YoutubeDL.CanceledException()
+                    }
+                    val stderr = (e as? DownloadException)?.stderr.orEmpty()
+                    if (
+                        attemptIndex < qualityAttempts.lastIndex &&
+                        YtDlpFormats.shouldRetryWithLowerQuality(stderr, e, attemptQuality)
+                    ) {
+                        lastFailure = e
+                        continue
+                    }
+                    throw e
+                }
             }
-            if (response.exitCode != 0) {
-                val err = response.err?.trim().orEmpty().ifBlank { "Exit code ${response.exitCode}" }
-                throw DownloadException(err)
-            }
-            val file = resolveOutputFile(outDir, jobId)
-                ?: throw IllegalStateException("Downloaded file not found")
+
+            val file =
+                downloadedFile
+                    ?: throw (lastFailure ?: IllegalStateException("Download failed"))
+            val finalQuality = usedQuality ?: requestedQuality
             val sizeBytes = file.length()
             val publishedPath =
                 SavedMediaPublisher.publishDownload(
@@ -232,14 +318,26 @@ class DownloadForegroundService : Service() {
                     file,
                     title,
                     jobId,
-                    saveLocation,
+                    customFolderUri,
                 )
             val storedPath = publishedPath ?: file.absolutePath
+            val fallbackNote =
+                if (finalQuality != requestedQuality) {
+                    getString(
+                        R.string.download_quality_fallback,
+                        YtDlpFormats.qualityLabel(requestedQuality),
+                        YtDlpFormats.qualityLabel(finalQuality),
+                    )
+                } else {
+                    null
+                }
             dao.markComplete(
                 id = jobId,
                 status = DownloadStatus.DONE,
                 path = storedPath,
                 size = sizeBytes,
+                quality = finalQuality,
+                note = fallbackNote,
             )
             val nm = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
             nm.notify(
@@ -266,6 +364,13 @@ class DownloadForegroundService : Service() {
                         e.message?.take(200) ?: getString(R.string.download_error_engine)
                     YtDlpFormats.isFormatUnavailableError(stderr) ->
                         getString(R.string.download_error_format)
+                    e is IllegalStateException && e.message?.contains("not found", true) == true ->
+                        getString(R.string.download_error_file_missing)
+                    YtDlpFormats.isLongVideo(durationSec) &&
+                        (YtDlpFormats.isMergeOrFinalizeError(stderr, e) || e is IllegalStateException) ->
+                        getString(R.string.download_error_long_video)
+                    YtDlpFormats.isMergeOrFinalizeError(stderr, e) ->
+                        getString(R.string.download_error_merge)
                     stderr.isNotBlank() ->
                         YtDlpFormats.summarizeError(stderr) ?: getString(R.string.download_error_safe)
                     else -> getString(R.string.download_error_safe)
@@ -295,6 +400,20 @@ class DownloadForegroundService : Service() {
         }
     }
 
+    private fun acquireDownloadWakeLock(): PowerManager.WakeLock? {
+        val pm = getSystemService(POWER_SERVICE) as? PowerManager ?: return null
+        return pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DownMe:download").apply {
+            setReferenceCounted(false)
+            acquire(3 * 60 * 60 * 1000L)
+        }
+    }
+
+    private fun releaseDownloadWakeLock(wakeLock: PowerManager.WakeLock?) {
+        if (wakeLock?.isHeld == true) {
+            runCatching { wakeLock.release() }
+        }
+    }
+
     private class DownloadException(val stderr: String) : IllegalStateException(stderr)
 
     private fun normalizePercent(raw: Float): Int {
@@ -311,6 +430,14 @@ class DownloadForegroundService : Service() {
                 f.delete()
             }
         }
+    }
+
+    private suspend fun resolveOutputFileWithRetry(dir: File, jobId: String): File? {
+        repeat(6) { attempt ->
+            resolveOutputFile(dir, jobId)?.let { return it }
+            if (attempt < 5) delay(400)
+        }
+        return null
     }
 
     private fun resolveOutputFile(dir: File, jobId: String): File? {

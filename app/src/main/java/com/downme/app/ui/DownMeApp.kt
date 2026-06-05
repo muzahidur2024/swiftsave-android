@@ -6,6 +6,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -20,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.downme.app.DownMeApplication
 import com.downme.app.data.AppThemeMode
+import com.downme.app.data.DownloadStatus
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -56,6 +59,9 @@ fun DownMeApp(
     val themeMode by app.userPreferences.themeMode.collectAsStateWithLifecycle(
         initialValue = AppThemeMode.Dark,
     )
+    val downloadingCount by app.database.downloadDao()
+        .observeCountByStatus(DownloadStatus.DOWNLOADING)
+        .collectAsStateWithLifecycle(initialValue = 0)
     DownMeTheme(themeMode = themeMode) {
         val navController = rememberNavController()
         val backStack by navController.currentBackStackEntryAsState()
@@ -92,7 +98,34 @@ fun DownMeApp(
                                         restoreState = true
                                     }
                                 },
-                                icon = { Icon(tab.icon, contentDescription = null) },
+                                icon = {
+                                    if (tab == TabDestination.Library && downloadingCount > 0) {
+                                        BadgedBox(
+                                            badge = {
+                                                Badge {
+                                                    Text(
+                                                        if (downloadingCount > 9) {
+                                                            "9+"
+                                                        } else {
+                                                            downloadingCount.toString()
+                                                        },
+                                                    )
+                                                }
+                                            },
+                                        ) {
+                                            Icon(
+                                                tab.icon,
+                                                contentDescription =
+                                                    stringResource(
+                                                        R.string.library_tab_downloading_badge,
+                                                        downloadingCount,
+                                                    ),
+                                            )
+                                        }
+                                    } else {
+                                        Icon(tab.icon, contentDescription = null)
+                                    }
+                                },
                                 label = { Text(stringResource(tab.labelRes)) },
                                 colors =
                                     NavigationBarItemDefaults.colors(

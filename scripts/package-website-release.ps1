@@ -11,8 +11,10 @@ $BuildGradle = Join-Path $RepoRoot "app\build.gradle.kts"
 if (-not (Test-Path $BuildGradle)) { throw "app/build.gradle.kts not found at $BuildGradle" }
 
 $versionName = "1.0.0"
+$versionCode = 1
 $gradleText = Get-Content $BuildGradle -Raw
 if ($gradleText -match 'versionName\s*=\s*"([^"]+)"') { $versionName = $Matches[1] }
+if ($gradleText -match 'versionCode\s*=\s*(\d+)') { $versionCode = [int]$Matches[1] }
 
 $ApkOutName = "DownMe-$versionName-arm64.apk"
 $WebsiteDownloads = Join-Path $RepoRoot "website\downloads"
@@ -48,6 +50,7 @@ $builtAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm") + " UTC"
 
 $info = @{
     app          = "DownMe"
+    versionCode  = $versionCode
     versionName  = $versionName
     apkFile      = $ApkOutName
     sizeMb       = $sizeMb

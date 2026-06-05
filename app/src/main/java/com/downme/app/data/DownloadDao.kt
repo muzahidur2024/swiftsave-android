@@ -12,6 +12,9 @@ interface DownloadDao {
     @Query("SELECT * FROM downloads ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<DownloadEntity>>
 
+    @Query("SELECT COUNT(*) FROM downloads WHERE status = :status")
+    fun observeCountByStatus(status: String): Flow<Int>
+
     @Query("SELECT * FROM downloads WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): DownloadEntity?
 
@@ -31,9 +34,16 @@ interface DownloadDao {
     suspend fun updateAllWithStatus(oldStatus: String, newStatus: String, error: String?)
 
     @Query(
-        "UPDATE downloads SET status = :status, filePath = :path, fileSize = :size, progress = 100, errorMessage = null WHERE id = :id",
+        "UPDATE downloads SET status = :status, filePath = :path, fileSize = :size, progress = 100, quality = :quality, errorMessage = :note WHERE id = :id",
     )
-    suspend fun markComplete(id: String, status: String, path: String, size: Long)
+    suspend fun markComplete(
+        id: String,
+        status: String,
+        path: String,
+        size: Long,
+        quality: String?,
+        note: String?,
+    )
 
     @Query("DELETE FROM downloads WHERE id = :id")
     suspend fun deleteById(id: String)
